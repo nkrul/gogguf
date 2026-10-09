@@ -33,7 +33,10 @@ jobs:
           go build -o /tmp/tools ./cmd/tools
 
   integration:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        runner: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
 
