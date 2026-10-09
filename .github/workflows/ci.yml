@@ -1,17 +1,14 @@
 name: CI
 
 on:
-# push:
-#   branches: [main]
   pull_request:
-    branches: [main]
   workflow_dispatch:
 
 jobs:
   test:
     strategy:
       matrix:
-        runner: [ubuntu-latest, macos-latest]
+        runner: [ubuntu-latest, ubuntu-26.04-arm, macos-latest, macos-26-intel, windows-latest]
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
@@ -22,12 +19,15 @@ jobs:
           cache-dependency-path: go.sum
 
       - name: Vet
+        shell: bash
         run: go vet ./...
 
       - name: Test
+        shell: bash
         run: go test ./...
 
       - name: Build CLI
+        shell: bash
         run: |
           go build -o /tmp/gogguf ./cmd/gogguf
           go build -o /tmp/tools ./cmd/tools
@@ -35,7 +35,7 @@ jobs:
   integration:
     strategy:
       matrix:
-        runner: [ubuntu-latest, macos-latest]
+        runner: [ubuntu-latest, ubuntu-26.04-arm, macos-latest, macos-26-intel, windows-latest]
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v4
@@ -46,10 +46,12 @@ jobs:
           cache-dependency-path: go.sum
 
       - name: Download test model
+        shell: bash
         run: |
           mkdir -p models
           curl -L -o models/Qwen3-0.6B-Q8_0.gguf \
             https://huggingface.co/Qwen/Qwen3-0.6B-GGUF/resolve/main/Qwen3-0.6B-Q8_0.gguf
 
       - name: Integration tests
+        shell: bash
         run: go test -tags=integration ./test/integration/...
